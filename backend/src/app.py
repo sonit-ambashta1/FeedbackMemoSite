@@ -46,7 +46,9 @@ app = FastAPI(
 
 # Configure CORS with environment-specific origins
 # In production set CORS_ORIGINS to your deployed frontend URL(s), e.g. https://your-app.vercel.app
-ENV = os.getenv("ENV", "dev")
+ENV = os.getenv("ENV")
+print(ENV)
+print(os.getenv("DATABASE_URL"))
 
 if ENV == "dev":
     # Local frontend development
@@ -64,6 +66,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 if os.getenv("ENV") == "dev":
+    print("CLEAR DB")
     database.clear_database()
 
 # Initialize database tables on startup (safe no-op if already present)
