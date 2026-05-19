@@ -1,9 +1,5 @@
-"""Feedback persistence model using SQLModel."""
-
 from typing import Optional
-
 from sqlmodel import Field, SQLModel
-
 
 class Feedback(SQLModel, table=True):
     """
