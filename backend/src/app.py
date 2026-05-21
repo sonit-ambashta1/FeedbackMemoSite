@@ -63,8 +63,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-if os.getenv("ENV") == "dev":
-    database.clear_database()
 
 # Initialize database tables on startup (safe no-op if already present)
 create_db_and_tables()

@@ -23,7 +23,11 @@ class FeedbackRepository:
         self.session = session
 
     def save_feedback(self, feedback: Feedback) -> Feedback:
-        """Save a new feedback entry to the database."""
+        """
+        Save a new feedback entry to the database.
+        
+        Returns the saved feedback entity with ID populated
+        """
         self.session.add(feedback)
         self.session.commit()
         self.session.refresh(feedback)

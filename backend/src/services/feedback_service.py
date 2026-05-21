@@ -1,5 +1,7 @@
 """Feedback service: contains business logic for feedback submission and retrieval."""
 
+from sqlmodel import func, select
+
 from src.models.feedback import Feedback
 from src.repositories.feedback_repo import FeedbackRepository
 
@@ -87,3 +89,16 @@ class FeedbackService:
             return False
 
         return self.feedback_repo.delete_feedback(feedback_id)
+
+    def get_category_counts(self) -> list[tuple[str, int]]:
+        """Get frequency distribution of feedback categories."""
+        statement = (
+            select(
+                Feedback.category,
+                func.count(Feedback.id)
+            )
+            .where(Feedback.category.is_not(None))
+            .group_by(Feedback.category)
+        )
+
+        return self.session.exec(statement).all()

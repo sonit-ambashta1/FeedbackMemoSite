@@ -48,6 +48,13 @@ class FeedbackResponse(BaseModel):
         from_attributes = True
 
 
+class CategoryCountResponse(BaseModel):
+    """Response schema for category counts."""
+
+    category: str
+    count: int
+
+
 class PriorityRequest(BaseModel):
     """Request body for priority prediction."""
 
