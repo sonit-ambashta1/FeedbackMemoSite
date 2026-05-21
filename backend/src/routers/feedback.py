@@ -12,6 +12,7 @@ from src.core.security import (
 from src.models.user import User
 from src.repositories.feedback_repo import FeedbackRepository
 from src.schemas.feedback import (
+    CategoryCountResponse,
     FeedbackResponse,
     FeedbackSubmitRequest,
     FeedbackUpdateRequest,
@@ -66,30 +67,34 @@ def submit_feedback(
 @router.get("/category/{category}", response_model=list[FeedbackResponse])
 def get_feedback_by_category(
     category: str,
+    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
     session: Session = Depends(get_session),
 ):
     """
-    Public read: feedback by category.
+    Get user's feedback filtered by category.
+    🔐 Authenticated users only.
     """
     repo = FeedbackRepository(session)
     service = FeedbackService(repo)
 
-    feedback_list = service.get_feedback_by_category(category)
+    feedback_list = service.get_feedback_by_category(current_user.id, category)
     return [FeedbackResponse.from_orm(f) for f in feedback_list]
 
 
 @router.get("/priority/{priority}", response_model=list[FeedbackResponse])
 def get_feedback_by_priority(
     priority: str,
+    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
     session: Session = Depends(get_session),
 ):
     """
-    Public read: feedback by priority.
+    Get user's feedback filtered by priority.
+    🔐 Authenticated users only.
     """
     repo = FeedbackRepository(session)
     service = FeedbackService(repo)
 
-    feedback_list = service.get_feedback_by_priority(priority)
+    feedback_list = service.get_feedback_by_priority(current_user.id, priority)
     return [FeedbackResponse.from_orm(f) for f in feedback_list]
 
 
@@ -134,10 +139,12 @@ def my_feedback(
 @router.get("/{feedback_id}", response_model=FeedbackResponse)
 def get_feedback_by_id(
     feedback_id: int,
+    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
     session: Session = Depends(get_session),
 ):
     """
-    Public read: get a feedback entry by ID.
+    Get feedback by ID. User can only retrieve their own feedback.
+    🔐 Authenticated users only. Ownership enforced.
     """
     repo = FeedbackRepository(session)
     feedback = repo.get_feedback_by_id(feedback_id)
@@ -146,6 +153,12 @@ def get_feedback_by_id(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Feedback not found",
+        )
+
+    if feedback.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this feedback",
         )
 
     return FeedbackResponse.from_orm(feedback)
@@ -220,21 +233,37 @@ def delete_feedback(
 
     return None
 
+@router.get("/category_counts", response_model=list[CategoryCountResponse])
+def get_category_counts(
+    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
+    session: Session = Depends(get_session),
+):
+    """
+    Get frequency distribution of user's feedback categories.
+    🔐 Authenticated users only. Returns only current user's category distribution.
+    """
+    repo = FeedbackRepository(session)
+    service = FeedbackService(repo)
+
+    category_counts = service.get_category_counts(current_user.id)
+    return [CategoryCountResponse(category=category, count=int(count)) for category, count in category_counts]
 
 # -------------------------
 # ML / AUXILIARY (PUBLIC)
 # -------------------------
 
 
-@router.post("/priority")
+@router.post("/priority", response_model=dict)
 def predict_priority(
     request: PriorityRequest,
+    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
 ):
     """
     Predict priority level for feedback text.
-    Public endpoint (no auth needed).
+    🔐 Authenticated users only. Internal ML endpoint.
     """
     return {
         "response": "Priority endpoint not implemented yet.",
         "text": request.text,
+        "user_id": current_user.id,
     }
