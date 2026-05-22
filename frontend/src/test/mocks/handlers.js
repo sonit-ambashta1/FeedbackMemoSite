@@ -1,10 +1,13 @@
-import { http, HttpResponse } from "msw";
+import { rest } from "msw";
 
 export const handlers = [
-  http.get("http://localhost:8000/auth/me", () => {
-    return HttpResponse.json({
-      id: 1,
-      username: "sonit",
-    });
+  rest.get("http://localhost:8000/auth/me", (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        id: 1,
+        username: "sonit",
+      })
+    );
   }),
 ];

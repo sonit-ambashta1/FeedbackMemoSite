@@ -1,6 +1,6 @@
 """Feedback repository: database access layer for Feedback model."""
 
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 
 from src.models.feedback import Feedback
 
@@ -40,18 +40,45 @@ class FeedbackRepository:
 
     def get_feedback_by_category(self, category: str) -> list[Feedback]:
         """Get all feedback for a specific category."""
-        statement = select(Feedback).where(Feedback.category == category)
+        # Keep a user-scoped query to ensure callers only receive their own data.
+        # Note: caller must pass `user_id` to scope results.
+        raise NotImplementedError("Use get_feedback_by_category_for_user(user_id, category)")
+
+    def get_feedback_by_category_for_user(self, user_id: int, category: str) -> list[Feedback]:
+        """Get all feedback for a specific category belonging to a user."""
+        statement = select(Feedback).where(
+            (Feedback.user_id == user_id) & (Feedback.category == category)
+        )
         return self.session.exec(statement).all()
 
     def get_feedback_by_priority(self, priority: str) -> list[Feedback]:
         """Get all feedback for a specific priority level."""
-        statement = select(Feedback).where(Feedback.priority == priority)
+        # Old non-user-scoped API removed in favor of user-scoped call below.
+        raise NotImplementedError("Use get_feedback_by_priority_for_user(user_id, priority)")
+
+    def get_feedback_by_priority_for_user(self, user_id: int, priority: str) -> list[Feedback]:
+        """Get all feedback for a specific priority level belonging to a user."""
+        statement = select(Feedback).where(
+            (Feedback.user_id == user_id) & (Feedback.priority == priority)
+        )
         return self.session.exec(statement).all()
 
     def get_feedback_by_id(self, feedback_id: int) -> Feedback | None:
         """Get feedback by ID. Returns Feedback or None if not found."""
         statement = select(Feedback).where(Feedback.id == feedback_id)
         return self.session.exec(statement).first()
+
+    def get_category_counts(self, user_id: int) -> list[tuple[str, int]]:
+        """Return tuples of (category, count) for a given user.
+
+        Only includes categories that are not null.
+        """
+        statement = (
+            select(Feedback.category, func.count(Feedback.id))
+            .where((Feedback.user_id == user_id) & (Feedback.category.is_not(None)))
+            .group_by(Feedback.category)
+        )
+        return self.session.exec(statement).all()
 
     def update_feedback(
         self,
