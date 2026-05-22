@@ -114,3 +114,7 @@ class FeedbackService:
     def get_category_counts_for_user(self, user_id: int) -> list[tuple[str, int]]:
         """Get frequency distribution of feedback categories for a user."""
         return self.feedback_repo.get_category_counts(user_id)
+    
+    def get_priority_counts_for_user(self, user_id: int) -> list[tuple[str, int]]:
+        """Get frequency distribution of feedback priorities for a user."""
+        return self.feedback_repo.get_priority_counts(user_id)

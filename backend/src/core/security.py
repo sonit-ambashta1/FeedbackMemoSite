@@ -109,7 +109,6 @@ def get_current_user(
     user = repo.get_by_id(int(user_id))
     if not user:
         raise credentials_exception
-
     return user
 
 
@@ -168,7 +167,6 @@ def get_current_user_flexible(
       2. Authorization Bearer header
     """
     token = request.cookies.get("access_token")
-
     # If cookie not present, check Authorization header
     if not token:
         auth_header = request.headers.get("Authorization")

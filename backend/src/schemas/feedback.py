@@ -55,6 +55,13 @@ class CategoryCountResponse(BaseModel):
     count: int
 
 
+class PriorityCountResponse(BaseModel):
+    """Response schema for priority counts."""
+
+    priority: str
+    count: int
+
+
 class PriorityRequest(BaseModel):
     """Request body for priority prediction."""
 
