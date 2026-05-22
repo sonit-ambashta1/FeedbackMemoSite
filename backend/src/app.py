@@ -69,7 +69,6 @@ app.add_middleware(
 # Initialize database tables on startup (safe no-op if already present)
 create_db_and_tables()
 
-
 # Register routers for modular endpoint organization
 app.include_router(auth.router)
 app.include_router(feedback.router)
