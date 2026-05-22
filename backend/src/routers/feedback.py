@@ -77,7 +77,7 @@ def get_feedback_by_category(
     repo = FeedbackRepository(session)
     service = FeedbackService(repo)
 
-    feedback_list = service.get_feedback_by_category(current_user.id, category)
+    feedback_list = service.get_feedback_by_category_for_user(current_user.id, category)
     return [FeedbackResponse.from_orm(f) for f in feedback_list]
 
 
@@ -94,7 +94,7 @@ def get_feedback_by_priority(
     repo = FeedbackRepository(session)
     service = FeedbackService(repo)
 
-    feedback_list = service.get_feedback_by_priority(current_user.id, priority)
+    feedback_list = service.get_feedback_by_priority_for_user(current_user.id, priority)
     return [FeedbackResponse.from_orm(f) for f in feedback_list]
 
 
@@ -245,7 +245,7 @@ def get_category_counts(
     repo = FeedbackRepository(session)
     service = FeedbackService(repo)
 
-    category_counts = service.get_category_counts(current_user.id)
+    category_counts = service.get_category_counts_for_user(current_user.id)
     return [CategoryCountResponse(category=category, count=int(count)) for category, count in category_counts]
 
 # -------------------------

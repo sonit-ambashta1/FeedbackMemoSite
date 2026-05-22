@@ -50,11 +50,19 @@ class FeedbackService:
 
     def get_feedback_by_category(self, category: str) -> list[Feedback]:
         """Get all feedback for a specific category."""
-        return self.feedback_repo.get_feedback_by_category(category)
+        raise NotImplementedError("Use get_feedback_by_category_for_user(user_id, category)")
+
+    def get_feedback_by_category_for_user(self, user_id: int, category: str) -> list[Feedback]:
+        """Get all feedback for a specific category for a given user."""
+        return self.feedback_repo.get_feedback_by_category_for_user(user_id, category)
 
     def get_feedback_by_priority(self, priority: str) -> list[Feedback]:
         """Get all feedback for a specific priority level."""
-        return self.feedback_repo.get_feedback_by_priority(priority)
+        raise NotImplementedError("Use get_feedback_by_priority_for_user(user_id, priority)")
+
+    def get_feedback_by_priority_for_user(self, user_id: int, priority: str) -> list[Feedback]:
+        """Get all feedback for a specific priority level for a given user."""
+        return self.feedback_repo.get_feedback_by_priority_for_user(user_id, priority)
 
     def update_feedback(
         self,
@@ -100,5 +108,9 @@ class FeedbackService:
             .where(Feedback.category.is_not(None))
             .group_by(Feedback.category)
         )
+        # Delegate to repository and scope by user. Service should not access sessions directly.
+        raise NotImplementedError("Use get_category_counts_for_user(user_id)")
 
-        return self.session.exec(statement).all()
+    def get_category_counts_for_user(self, user_id: int) -> list[tuple[str, int]]:
+        """Get frequency distribution of feedback categories for a user."""
+        return self.feedback_repo.get_category_counts(user_id)

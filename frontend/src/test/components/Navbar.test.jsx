@@ -5,20 +5,20 @@ import Navbar from "../../components/Navbar";
 import { AuthProvider } from "../../context/AuthContext";
 import { BrowserRouter } from "react-router-dom";
 import { server } from "../mocks/server";
-import { http, HttpResponse } from "msw";
+import { rest } from "msw";
 
 describe("Navbar", () => {
   const renderNavbar = (mockUser = null) => {
     if (mockUser) {
       server.use(
-        http.get("http://localhost:8000/auth/me", () => {
-          return HttpResponse.json(mockUser);
+        rest.get("http://localhost:8000/auth/me", (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json(mockUser));
         })
       );
     } else {
       server.use(
-        http.get("http://localhost:8000/auth/me", () => {
-          return HttpResponse.json({ detail: "Not authenticated" }, { status: 401 });
+        rest.get("http://localhost:8000/auth/me", (req, res, ctx) => {
+          return res(ctx.status(401), ctx.json({ detail: "Not authenticated" }));
         })
       );
     }
@@ -105,11 +105,11 @@ describe("Navbar", () => {
       const user = userEvent.setup();
 
       server.use(
-        http.post("http://localhost:8000/auth/logout", () => {
-          return HttpResponse.json({ message: "Logged out successfully" });
+        rest.post("http://localhost:8000/auth/logout", (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json({ message: "Logged out successfully" }));
         }),
-        http.get("http://localhost:8000/auth/me", () => {
-          return HttpResponse.json({ id: 1, username: "testuser" });
+        rest.get("http://localhost:8000/auth/me", (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json({ id: 1, username: "testuser" }));
         })
       );
 
@@ -131,11 +131,11 @@ describe("Navbar", () => {
       const user = userEvent.setup();
 
       server.use(
-        http.post("http://localhost:8000/auth/logout", () => {
-          return HttpResponse.json({ message: "Logged out successfully" });
+        rest.post("http://localhost:8000/auth/logout", (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json({ message: "Logged out successfully" }));
         }),
-        http.get("http://localhost:8000/auth/me", () => {
-          return HttpResponse.json({ id: 1, username: "testuser" });
+        rest.get("http://localhost:8000/auth/me", (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json({ id: 1, username: "testuser" }));
         })
       );
 
@@ -211,11 +211,11 @@ describe("Navbar", () => {
       const user = userEvent.setup();
 
       server.use(
-        http.post("http://localhost:8000/auth/logout", () => {
-          return HttpResponse.json({ detail: "Logout failed" }, { status: 500 });
+        rest.post("http://localhost:8000/auth/logout", (req, res, ctx) => {
+          return res(ctx.status(500), ctx.json({ detail: "Logout failed" }));
         }),
-        http.get("http://localhost:8000/auth/me", () => {
-          return HttpResponse.json({ id: 1, username: "testuser" });
+        rest.get("http://localhost:8000/auth/me", (req, res, ctx) => {
+          return res(ctx.status(200), ctx.json({ id: 1, username: "testuser" }));
         })
       );
 

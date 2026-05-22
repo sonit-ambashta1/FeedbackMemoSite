@@ -92,6 +92,54 @@ async function deleteFeedback(feedbackId) {
   return handleResponse(response); // now handles 204 correctly
 }
 
+
+/**
+ * Get feedback for the current user filtered by category
+ * @param {string} category
+ */
+async function getFeedbackByCategory(category) {
+  const response = await fetch(`${API_BASE}/category/${encodeURIComponent(category)}`, {
+    method: "GET",
+    ...authenticatedOptions,
+  });
+  return handleResponse(response);
+}
+
+/**
+ * Get feedback for the current user filtered by priority
+ * @param {string} priority
+ */
+async function getFeedbackByPriority(priority) {
+  const response = await fetch(`${API_BASE}/priority/${encodeURIComponent(priority)}`, {
+    method: "GET",
+    ...authenticatedOptions,
+  });
+  return handleResponse(response);
+}
+
+/**
+ * Get category counts for the current user
+ */
+async function getCategoryCounts() {
+  const response = await fetch(`${API_BASE}/category_counts`, {
+    method: "GET",
+    ...authenticatedOptions,
+  });
+  return handleResponse(response);
+}
+
+/**
+ * Get feedback by ID (only returns if current user owns it)
+ * @param {number|string} feedbackId
+ */
+async function getFeedbackById(feedbackId) {
+  const response = await fetch(`${API_BASE}/${feedbackId}`, {
+    method: "GET",
+    ...authenticatedOptions,
+  });
+  return handleResponse(response);
+}
+
 // =====================================================================
 // EXPORT API
 // =====================================================================
@@ -100,6 +148,10 @@ const feedbackAPI = {
   submitFeedback,
   updateFeedback,
   deleteFeedback,
+  getFeedbackById,
+  getFeedbackByCategory,
+  getFeedbackByPriority,
+  getCategoryCounts,
 };
 
 export default feedbackAPI;
