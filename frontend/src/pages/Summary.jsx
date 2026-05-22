@@ -1,14 +1,61 @@
-import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { useAuth } from "../context/AuthContext"
+import feedbackAPI from "../api/feedback"
 
 const Summary = () => {
-    return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
-            <h1 className="text-3xl font-bold mb-4 text-white">Feedback Summary</h1>
-            <p className="text-gray-700">This page will display aggregated feedback data and insights.</p>
-            <Link to="/dashboard" className="mt-4 bg-blue-500 text-white font-medium py-2 px-4 rounded-full shadow-lg hover:bg-blue-600 transition">
-                Go back to Dashboard
-            </Link>
-        </div>
-    )
+  const { user, loading: authLoading } = useAuth()
+  const [categorySummary, setCategorySummary] = useState([])
+  const [prioritySummary, setPrioritySummary] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    if (!user) return
+
+    const loadSummary = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const categoryData = await feedbackAPI.getCategoryCounts()
+        const priorityData = await feedbackAPI.getPriorityCounts()
+        setCategorySummary(categoryData)
+        setPrioritySummary(priorityData)
+      } catch (err) {
+        console.log("ERROR")
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadSummary()
+  }, [user])
+
+  if (authLoading) return <div>Loading authentication...</div>
+  if (!user) return <div>Please log in to view the summary.</div>
+  if (loading) return <div>Loading summary...</div>
+  if (error) return <div className="text-red-500">Error: {error}</div>
+
+  return (
+    <div>
+        <h2 className="text-2xl font-bold mb-4">Feedback Summary by Category</h2>
+        <ul className="list-disc pl-5">
+            {categorySummary.map((item) => (
+                <li key={item.category} className="mb-2">
+                <span className="font-semibold">{item.category || "Uncategorized"}:</span> {item.count}
+                </li>
+            ))}
+        </ul>
+
+        <h2 className="text-2xl font-bold mb-4">Feedback Summary by Priority</h2>
+        <ul className="list-disc pl-5">
+            {prioritySummary.map((item) => (
+                <li key={item.priority} className="mb-2">
+                <span className="font-semibold">{item.priority || "Unprioritized"}:</span> {item.count}
+                </li>
+            ))}
+        </ul>
+    </div>
+  )
 }
 export default Summary

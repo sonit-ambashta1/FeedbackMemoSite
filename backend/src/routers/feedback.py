@@ -16,6 +16,7 @@ from src.schemas.feedback import (
     FeedbackResponse,
     FeedbackSubmitRequest,
     FeedbackUpdateRequest,
+    PriorityCountResponse,
     PriorityRequest,
 )
 from src.services.feedback_service import FeedbackService
@@ -131,10 +132,39 @@ def my_feedback(
     return get_my_feedback(current_user=current_user, session=session)
 
 
+@router.get("/category_counts", response_model=list[CategoryCountResponse])
+def get_category_counts(
+    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
+    session: Session = Depends(get_session),
+):
+    """
+    Get frequency distribution of user's feedback categories.
+    🔐 Authenticated users only. Returns only current user's category distribution.
+    """
+    repo = FeedbackRepository(session)
+    service = FeedbackService(repo)
+
+    category_counts = service.get_category_counts_for_user(current_user.id)
+    return [CategoryCountResponse(category=category, count=int(count)) for category, count in category_counts]
+
+@router.get("/priority_counts", response_model=list[PriorityCountResponse])
+def get_priority_counts(
+    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
+    session: Session = Depends(get_session),
+):
+    """
+    Get frequency distribution of user's feedback priorities.
+    🔐 Authenticated users only. Returns only current user's priority distribution.
+    """
+    repo = FeedbackRepository(session)
+    service = FeedbackService(repo)
+
+    priority_counts = service.get_priority_counts_for_user(current_user.id)
+    return [PriorityCountResponse(priority=priority, count=int(count)) for priority, count in priority_counts]
+
 # -------------------------
 # READ (PUBLIC) - by ID
 # -------------------------
-
 
 @router.get("/{feedback_id}", response_model=FeedbackResponse)
 def get_feedback_by_id(
@@ -233,20 +263,6 @@ def delete_feedback(
 
     return None
 
-@router.get("/category_counts", response_model=list[CategoryCountResponse])
-def get_category_counts(
-    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
-    session: Session = Depends(get_session),
-):
-    """
-    Get frequency distribution of user's feedback categories.
-    🔐 Authenticated users only. Returns only current user's category distribution.
-    """
-    repo = FeedbackRepository(session)
-    service = FeedbackService(repo)
-
-    category_counts = service.get_category_counts_for_user(current_user.id)
-    return [CategoryCountResponse(category=category, count=int(count)) for category, count in category_counts]
 
 # -------------------------
 # ML / AUXILIARY (PUBLIC)

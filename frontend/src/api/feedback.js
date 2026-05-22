@@ -129,6 +129,18 @@ async function getCategoryCounts() {
 }
 
 /**
+ * Get priority counts for the current user
+ */
+async function getPriorityCounts() {
+  const response = await fetch(`${API_BASE}/priority_counts`, {
+    method: "GET",
+    ...authenticatedOptions,
+  });
+  return handleResponse(response);
+}
+
+
+/**
  * Get feedback by ID (only returns if current user owns it)
  * @param {number|string} feedbackId
  */
@@ -152,6 +164,7 @@ const feedbackAPI = {
   getFeedbackByCategory,
   getFeedbackByPriority,
   getCategoryCounts,
+  getPriorityCounts
 };
 
 export default feedbackAPI;

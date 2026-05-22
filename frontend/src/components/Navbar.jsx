@@ -23,6 +23,12 @@ export default function Navbar() {
       <div className="space-x-4">
         {user ? (
           <>
+            <Link to="/home" className="hover:underline">
+              Home
+            </Link>
+            <Link to="/dashboard" className="hover:underline">
+              Dashboard
+            </Link>
             <span>Welcome, {user.username}</span>
             <button
               onClick={handleLogout}

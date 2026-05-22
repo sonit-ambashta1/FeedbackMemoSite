@@ -79,6 +79,18 @@ class FeedbackRepository:
             .group_by(Feedback.category)
         )
         return self.session.exec(statement).all()
+    
+    def get_priority_counts(self, user_id: int) -> list[tuple[str, int]]:
+        """Return tuples of (priority, count) for a given user.
+
+        Only includes priorities that are not null.
+        """
+        statement = (
+            select(Feedback.priority, func.count(Feedback.id))
+            .where((Feedback.user_id == user_id) & (Feedback.priority.is_not(None)))
+            .group_by(Feedback.priority)
+        )
+        return self.session.exec(statement).all()
 
     def update_feedback(
         self,
