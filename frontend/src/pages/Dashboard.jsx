@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import feedbackAPI from "../api/feedback";
 import FeedbackItem from "../components/FeedbackItem";
@@ -173,6 +174,15 @@ export default function Dashboard() {
           ))}
         </div>
       )}
+
+      {/* Aggregation Dashboard */}
+      <Link
+        to="/summary"
+        className="fixed bottom-4 right-4 bg-green-500 text-white font-medium py-2 px-4 rounded-full shadow-lg hover:bg-green-600 transition"
+      >
+        View Summary
+      </Link>
     </div>
+
   );
 }

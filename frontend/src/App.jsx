@@ -1,11 +1,12 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route} from "react-router-dom"
 import { AuthProvider } from "./context/AuthContext"
 import Navbar from "./components/Navbar"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Dashboard from "./pages/Dashboard"
 import PrivateRoute from "./components/PrivateRoute"
+import Summary from "./pages/Summary"
 import Home from "./pages/Home"
 
 function App() {
@@ -28,6 +29,14 @@ function App() {
             }
           />
 
+          <Route
+            path="/summary"
+            element={
+              <PrivateRoute>
+                <Summary />
+              </PrivateRoute>
+            }
+          />
           {/* Optional: redirect root to dashboard or login */}
           <Route
             path="/"
