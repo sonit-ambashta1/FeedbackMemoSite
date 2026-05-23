@@ -31,30 +31,36 @@ const Summary = () => {
     loadSummary()
   }, [user])
 
-  if (authLoading) return <div>Loading authentication...</div>
-  if (!user) return <div>Please log in to view the summary.</div>
-  if (loading) return <div>Loading summary...</div>
-  if (error) return <div className="text-red-500">Error: {error}</div>
+  if (authLoading) return <div className="min-h-screen bg-slate-50 py-12 px-4">Loading authentication...</div>
+  if (!user) return <div className="min-h-screen bg-slate-50 py-12 px-4">Please log in to view the summary.</div>
+  if (loading) return <div className="min-h-screen bg-slate-50 py-12 px-4">Loading summary...</div>
+  if (error) return <div className="min-h-screen bg-slate-50 py-12 px-4 text-red-500">Error: {error}</div>
 
   return (
-    <div>
-        <h2 className="text-2xl font-bold mb-4">Feedback Summary by Category</h2>
-        <ul className="list-disc pl-5">
+    <div className="min-h-screen bg-slate-50 py-12 px-4">
+      <div className="mx-auto max-w-4xl space-y-8">
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Feedback Summary by Category</h2>
+          <ul className="space-y-3">
             {categorySummary.map((item) => (
-                <li key={item.category} className="mb-2">
-                <span className="font-semibold">{item.category || "Uncategorized"}:</span> {item.count}
-                </li>
+              <li key={item.category} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">
+                <span className="font-semibold text-slate-900">{item.category || "Uncategorized"}:</span> {item.count}
+              </li>
             ))}
-        </ul>
+          </ul>
+        </div>
 
-        <h2 className="text-2xl font-bold mb-4">Feedback Summary by Priority</h2>
-        <ul className="list-disc pl-5">
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Feedback Summary by Priority</h2>
+          <ul className="space-y-3">
             {prioritySummary.map((item) => (
-                <li key={item.priority} className="mb-2">
-                <span className="font-semibold">{item.priority || "Unprioritized"}:</span> {item.count}
-                </li>
+              <li key={item.priority} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">
+                <span className="font-semibold text-slate-900">{item.priority || "Unprioritized"}:</span> {item.count}
+              </li>
             ))}
-        </ul>
+          </ul>
+        </div>
+      </div>
     </div>
   )
 }

@@ -8,12 +8,12 @@
 import { useState } from "react";
 
 const PRIORITY_STYLES = {
-  high: "border-red-500 bg-red-50 text-red-900",
-  medium: "border-yellow-500 bg-yellow-50 text-yellow-900",
-  low: "border-green-500 bg-green-50 text-green-900",
+  high: "border-red-200 bg-red-50 text-red-900",
+  medium: "border-amber-200 bg-amber-50 text-amber-900",
+  low: "border-emerald-200 bg-emerald-50 text-emerald-900",
 };
 
-const DEFAULT_STYLE = "border-gray-300 bg-white text-gray-900";
+const DEFAULT_STYLE = "border-slate-200 bg-white text-slate-900";
 const DEFAULT_PRIORITY = "medium";
 
 export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
@@ -69,19 +69,19 @@ export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
   if (!isEditing) {
     return (
       <article
-        className={`border rounded-lg p-4 space-y-2 ${priorityStyle}`}
+        className={`border rounded-[1.5rem] bg-white p-5 shadow-sm space-y-4 ${priorityStyle}`}
         aria-label={`Feedback item with ${priority} priority`}
       >
-        <header className="flex justify-between items-center">
-          <span className="text-xs font-medium px-2 py-1 rounded">
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-slate-700">
             {priority.toUpperCase()}
           </span>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="text-xs text-blue-500 hover:underline"
+              className="text-sm font-medium text-sky-600 hover:text-sky-700"
               aria-label="Edit feedback"
             >
               Edit
@@ -89,7 +89,7 @@ export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
             <button
               type="button"
               onClick={() => onDelete(id)}
-              className="text-xs text-red-500 hover:underline"
+              className="text-sm font-medium text-red-600 hover:text-red-700"
               aria-label="Delete feedback"
             >
               Delete
@@ -97,12 +97,12 @@ export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
           </div>
         </header>
 
-        <p className="text-sm text-gray-800 whitespace-pre-wrap">
+        <p className="text-sm text-slate-700 whitespace-pre-wrap">
           {content}
         </p>
 
         {category && (
-          <p className="text-xs text-gray-500">
+          <p className="text-sm text-slate-500">
             Category: {category}
           </p>
         )}
@@ -113,17 +113,17 @@ export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
   // Edit mode
   return (
     <article
-      className={`border rounded-lg p-4 space-y-2 ${priorityStyle}`}
+      className={`border rounded-[1.5rem] bg-white p-5 shadow-sm space-y-4 ${priorityStyle}`}
       aria-label="Edit feedback item"
     >
-      <div className="space-y-3">
+      <div className="space-y-5">
         <div>
-          <label htmlFor={`content-${id}`} className="block text-xs font-medium mb-1">
+          <label htmlFor={`content-${id}`} className="block text-sm font-medium text-slate-700 mb-2">
             Content
           </label>
           <textarea
             id={`content-${id}`}
-            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             disabled={isSaving}
@@ -131,14 +131,14 @@ export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label htmlFor={`category-${id}`} className="block text-xs font-medium mb-1">
+            <label htmlFor={`category-${id}`} className="block text-sm font-medium text-slate-700 mb-2">
               Category
             </label>
             <input
               id={`category-${id}`}
-              className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               value={editCategory}
               onChange={(e) => setEditCategory(e.target.value)}
               placeholder="e.g., UI, Performance"
@@ -147,12 +147,12 @@ export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
           </div>
 
           <div>
-            <label htmlFor={`priority-${id}`} className="block text-xs font-medium mb-1">
+            <label htmlFor={`priority-${id}`} className="block text-sm font-medium text-slate-700 mb-2">
               Priority
             </label>
             <select
               id={`priority-${id}`}
-              className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
               value={editPriority}
               onChange={(e) => setEditPriority(e.target.value)}
               disabled={isSaving}
@@ -164,11 +164,11 @@ export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
           </div>
         </div>
 
-        <div className="flex gap-2 justify-end">
+        <div className="flex flex-wrap justify-end gap-3">
           <button
             type="button"
             onClick={handleCancel}
-            className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50"
+            className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
             disabled={isSaving}
           >
             Cancel
@@ -176,7 +176,7 @@ export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
           <button
             type="button"
             onClick={handleSave}
-            className="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-full bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isSaving}
           >
             {isSaving ? "Saving..." : "Save"}
