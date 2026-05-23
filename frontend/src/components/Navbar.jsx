@@ -15,37 +15,37 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">
-      <Link to="/" className="font-bold text-xl flex items-center">
-        <img src={logo} alt="FBReflect Logo" className="h-8 inline-block mr-2" />
+    <nav className="bg-white text-slate-900 px-6 py-4 flex flex-wrap justify-between items-center gap-4 border-b border-slate-200 shadow-sm">
+      <Link to="/" className="font-bold text-xl flex items-center gap-3 text-sky-600">
+        <img src={logo} alt="FBReflect Logo" className="h-8 inline-block" />
         FBReflect
       </Link>
-      <div className="space-x-4">
+      <div className="flex flex-wrap items-center gap-3 text-sm">
         {user ? (
           <>
-            <Link to="/home" className="hover:underline">
+            <Link to="/home" className="text-slate-700 hover:text-slate-900 hover:underline">
               Home
             </Link>
-            <Link to="/dashboard" className="hover:underline">
+            <Link to="/dashboard" className="text-slate-700 hover:text-slate-900 hover:underline">
               Dashboard
             </Link>
-            <span>Welcome, {user.username}</span>
+            <span className="text-slate-500">Welcome, {user.username}</span>
             <button
               onClick={handleLogout}
-              className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
+              className="rounded-full bg-red-600 px-4 py-2 text-sm text-white transition hover:bg-red-700"
             >
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link to="/home" className="hover:underline">
+            <Link to="/home" className="text-slate-700 hover:text-slate-900 hover:underline">
               Home
             </Link>
-            <Link to="/login" className="hover:underline">
+            <Link to="/login" className="text-slate-700 hover:text-slate-900 hover:underline">
               Login
             </Link>
-            <Link to="/register" className="hover:underline">
+            <Link to="/register" className="text-slate-700 hover:text-slate-900 hover:underline">
               Register
             </Link>
           </>

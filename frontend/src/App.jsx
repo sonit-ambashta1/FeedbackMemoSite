@@ -12,9 +12,10 @@ import Home from "./pages/Home"
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Navbar />
-        <Routes>
+      <div className="min-h-screen bg-slate-50 text-slate-900">
+        <Router>
+          <Navbar />
+          <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -48,7 +49,8 @@ function App() {
           />
         </Routes>
       </Router>
-    </AuthProvider>
+    </div>
+  </AuthProvider>
   )
 }
 

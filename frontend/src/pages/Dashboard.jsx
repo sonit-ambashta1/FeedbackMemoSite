@@ -102,87 +102,89 @@ export default function Dashboard() {
   );
 
   // Loading & auth checks
-  if (authLoading) return <div>Loading authentication...</div>;
-  if (!user) return <div className="text-gray-500">Please log in to view your dashboard.</div>;
-  if (loading) return <div className="text-gray-500">Loading feedback...</div>;
-  if (error) return <div className="text-red-500">Error: {error}</div>;
+  if (authLoading) return <div className="min-h-screen bg-slate-50 py-12 px-4">Loading authentication...</div>;
+  if (!user) return <div className="min-h-screen bg-slate-50 py-12 px-4 text-slate-600">Please log in to view your dashboard.</div>;
+  if (loading) return <div className="min-h-screen bg-slate-50 py-12 px-4 text-slate-600">Loading feedback...</div>;
+  if (error) return <div className="min-h-screen bg-slate-50 py-12 px-4 text-red-500">Error: {error}</div>;
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold">Welcome, {user.username}!</h1>
+    <div className="min-h-screen bg-slate-50 py-12 px-4">
+      <div className="mx-auto max-w-4xl space-y-8">
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <h1 className="text-3xl font-semibold text-slate-900 mb-6">Welcome, {user.username}!</h1>
 
-      {/* Add Feedback Form */}
-      <form onSubmit={handleAddFeedback} className="bg-gray-100 p-4 rounded-md space-y-3">
-        <div>
-          <label htmlFor="content" className="block text-sm font-medium mb-1">Your Feedback</label>
-          <textarea
-            id="content"
-            className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
-            placeholder="Write your feedback..."
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-            disabled={isSubmitting}
-            rows={4}
-          />
-        </div>
+          <form onSubmit={handleAddFeedback} className="space-y-6">
+            <div className="space-y-2">
+              <label htmlFor="content" className="block text-sm font-medium text-slate-700">Your Feedback</label>
+              <textarea
+                id="content"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                placeholder="Write your feedback..."
+                value={newContent}
+                onChange={(e) => setNewContent(e.target.value)}
+                disabled={isSubmitting}
+                rows={4}
+              />
+            </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium mb-1">Category (optional)</label>
-            <input
-              id="category"
-              className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
-              placeholder="e.g., UI, Performance"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label htmlFor="category" className="block text-sm font-medium text-slate-700">Category (optional)</label>
+                <input
+                  id="category"
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                  placeholder="e.g., UI, Performance"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
 
-          <div>
-            <label htmlFor="priority" className="block text-sm font-medium mb-1">Priority</label>
-            <select
-              id="priority"
-              className="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
-              value={newPriority}
-              onChange={(e) => setNewPriority(e.target.value)}
+              <div className="space-y-2">
+                <label htmlFor="priority" className="block text-sm font-medium text-slate-700">Priority</label>
+                <select
+                  id="priority"
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                  value={newPriority}
+                  onChange={(e) => setNewPriority(e.target.value)}
+                  disabled={isSubmitting}
+                >
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full rounded-full bg-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting}
             >
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
+              {isSubmitting ? "Adding..." : "Add Feedback"}
+            </button>
+          </form>
+        </div>
+
+        {sortedFeedbacks.length === 0 ? (
+          <p className="text-center text-slate-500 py-10">No feedback yet. Add one above!</p>
+        ) : (
+          <div className="space-y-4">
+            {sortedFeedbacks.map((feedback) => (
+              <FeedbackItem key={feedback.id} feedback={feedback} onDelete={handleDelete} onUpdate={handleEdit} />
+            ))}
           </div>
+        )}
+
+        <div className="flex justify-end">
+          <Link
+            to="/summary"
+            className="inline-flex items-center rounded-full bg-sky-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700"
+          >
+            View Summary
+          </Link>
         </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white font-medium py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Adding..." : "Add Feedback"}
-        </button>
-      </form>
-
-      {/* Feedback List */}
-      {sortedFeedbacks.length === 0 ? (
-        <p className="text-center text-gray-500 py-8">No feedback yet. Add one above!</p>
-      ) : (
-        <div className="space-y-3">
-          {sortedFeedbacks.map((feedback) => (
-            <FeedbackItem key={feedback.id} feedback={feedback} onDelete={handleDelete} onUpdate={handleEdit} />
-          ))}
-        </div>
-      )}
-
-      {/* Aggregation Dashboard */}
-      <Link
-        to="/summary"
-        className="fixed bottom-4 right-4 bg-green-500 text-white font-medium py-2 px-4 rounded-full shadow-lg hover:bg-green-600 transition"
-      >
-        View Summary
-      </Link>
+      </div>
     </div>
-
   );
 }

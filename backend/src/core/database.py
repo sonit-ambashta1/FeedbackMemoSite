@@ -47,8 +47,5 @@ def get_session():
     Dependency injection provider for database sessions.
     Yields a session and ensures cleanup.
     """
-    print("SESSION DEPENDENCY HIT")
     with Session(engine) as session:
-        print("SESSION CREATED")
         yield session
-        print("SESSION CLOSED")
