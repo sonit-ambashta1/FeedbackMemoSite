@@ -61,8 +61,17 @@ class PriorityCountResponse(BaseModel):
     priority: str
     count: int
 
+class CategoryPriorityCountResponse(BaseModel):
+    """Response schema for category and priority counts."""
 
+    category: Optional[str] = None
+    priority: Optional[str] = None
+    count: int
+
+# IGNORE - for future use
 class PriorityRequest(BaseModel):
     """Request body for priority prediction."""
 
     text: str
+
+

@@ -3,6 +3,7 @@
 from sqlmodel import Session, select, func
 
 from src.models.feedback import Feedback
+from typing import Optional
 
 
 class FeedbackRepository:
@@ -92,6 +93,18 @@ class FeedbackRepository:
         )
         return self.session.exec(statement).all()
 
+    def get_category_priority_counts(self, user_id: int) -> list[tuple[str, str, int]]:
+        """Return tuples of (category, priority, count) for a given user.
+
+        Includes all combinations of category and priority, assuming both fields are passed in. get_priority_counts and get_category_counts can be used if either field is not passed in.
+        """
+        statement = (
+            select(Feedback.category, Feedback.priority, func.count(Feedback.id))
+            .where(Feedback.user_id == user_id)
+            .group_by(Feedback.category, Feedback.priority)
+        )
+        return self.session.exec(statement).all()
+    
     def update_feedback(
         self,
         feedback_id: int,
