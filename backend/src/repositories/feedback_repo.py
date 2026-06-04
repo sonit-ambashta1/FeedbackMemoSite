@@ -63,6 +63,15 @@ class FeedbackRepository:
             (Feedback.user_id == user_id) & (Feedback.priority == priority)
         )
         return self.session.exec(statement).all()
+    
+    def get_feedback_by_category_and_priority_for_user(self, user_id: int, category: str | None = None, priority: str | None = None) -> list[Feedback]:
+        """Get all feedback for a specific category and priority level belonging to a user."""
+        statement = select(Feedback).where(Feedback.user_id == user_id)
+        if category is not None:
+            statement = statement.where(Feedback.category == category)
+        if priority is not None:
+            statement = statement.where(Feedback.priority == priority)
+        return self.session.exec(statement).all()
 
     def get_feedback_by_id(self, feedback_id: int) -> Feedback | None:
         """Get feedback by ID. Returns Feedback or None if not found."""

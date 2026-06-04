@@ -6,6 +6,7 @@ const Summary = () => {
   const { user, loading: authLoading } = useAuth()
   const [categorySummary, setCategorySummary] = useState([])
   const [prioritySummary, setPrioritySummary] = useState([])
+  const [categoryPrioritySummary, setCategoryPrioritySummary] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -18,10 +19,11 @@ const Summary = () => {
       try {
         const categoryData = await feedbackAPI.getCategoryCounts()
         const priorityData = await feedbackAPI.getPriorityCounts()
+        const categoryPriorityData = await feedbackAPI.getCategoryAndPriorityCounts()
         setCategorySummary(categoryData)
         setPrioritySummary(priorityData)
+        setCategoryPrioritySummary(categoryPriorityData)
       } catch (err) {
-        console.log("ERROR")
         setError(err.message)
       } finally {
         setLoading(false)
@@ -56,6 +58,17 @@ const Summary = () => {
             {prioritySummary.map((item) => (
               <li key={item.priority} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">
                 <span className="font-semibold text-slate-900">{item.priority || "Unprioritized"}:</span> {item.count}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Feedback Summary by Category and Priority</h2>
+          <ul className="space-y-3">
+            {categoryPrioritySummary.map((item) => (
+              <li key={`${item.category}-${item.priority}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">
+                <span className="font-semibold text-slate-900">{item.category || "Uncategorized"} - {item.priority || "Unprioritized"}:</span> {item.count}
               </li>
             ))}
           </ul>

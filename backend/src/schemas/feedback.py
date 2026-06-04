@@ -10,8 +10,8 @@ class FeedbackSubmitRequest(BaseModel):
     """Request body for submitting feedback."""
 
     content: str = Field(..., min_length=1)
-    category: Optional[str] = None
-    priority: Optional[str] = None
+    category: str = Field(..., min_length=1)
+    priority: str = Field(..., min_length=1)
 
 
 class FeedbackUpdateRequest(BaseModel):
@@ -25,13 +25,13 @@ class FeedbackUpdateRequest(BaseModel):
 class FeedbackFilterRequest(BaseModel):
     """Request body for filtering feedback."""
 
-    category: str
+    category: str = Field(..., min_length=1)
 
 
 class FeedbackFilterByPriorityRequest(BaseModel):
     """Request body for filtering feedback by priority."""
 
-    priority: str
+    priority: str = Field(..., min_length=1)
 
 
 # Response Schemas
