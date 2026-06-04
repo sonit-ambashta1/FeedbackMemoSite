@@ -118,6 +118,19 @@ async function getFeedbackByPriority(priority) {
 }
 
 /**
+ * Get feedback for the current user filtered by both category and priority
+ * @param {string} category 
+ * @param {string} priority
+ */
+async function getFeedbackByCategoryAndPriority(category, priority) {
+  const response = await fetch(`${API_BASE}/filter?category=${encodeURIComponent(category)}&priority=${encodeURIComponent(priority)}`, {
+    method: "GET",
+    ...authenticatedOptions,
+  });
+  return handleResponse(response);
+}
+
+/**
  * Get category counts for the current user
  */
 async function getCategoryCounts() {
@@ -139,6 +152,16 @@ async function getPriorityCounts() {
   return handleResponse(response);
 }
 
+/**
+ * Get category and priority counts for the current user
+ */
+async function getCategoryAndPriorityCounts() {
+  const response = await fetch(`${API_BASE}/category_priority_counts`, {
+    method: "GET",
+    ...authenticatedOptions,
+  });
+  return handleResponse(response);
+}
 
 /**
  * Get feedback by ID (only returns if current user owns it)
@@ -164,7 +187,8 @@ const feedbackAPI = {
   getFeedbackByCategory,
   getFeedbackByPriority,
   getCategoryCounts,
-  getPriorityCounts
+  getPriorityCounts,
+  getCategoryAndPriorityCounts,
 };
 
 export default feedbackAPI;

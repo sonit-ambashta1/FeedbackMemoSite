@@ -13,6 +13,7 @@ from src.models.user import User
 from src.repositories.feedback_repo import FeedbackRepository
 from src.schemas.feedback import (
     CategoryCountResponse,
+    CategoryPriorityCountResponse,
     FeedbackResponse,
     FeedbackSubmitRequest,
     FeedbackUpdateRequest,
@@ -98,6 +99,22 @@ def get_feedback_by_priority(
     feedback_list = service.get_feedback_by_priority_for_user(current_user.id, priority)
     return [FeedbackResponse.from_orm(f) for f in feedback_list]
 
+@router.get("/category/{category}/priority/{priority}", response_model=list[FeedbackResponse])
+def get_feedback_by_category_and_priority(
+    category: str,
+    priority: str,
+    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
+    session: Session = Depends(get_session),
+):
+    """
+    Get user's feedback filtered by both category and priority.
+    🔐 Authenticated users only.
+    """
+    repo = FeedbackRepository(session)
+    service = FeedbackService(repo)
+
+    feedback_list = service.get_feedback_by_category_and_priority_for_user(current_user.id, category, priority)
+    return [FeedbackResponse.from_orm(f) for f in feedback_list]
 
 # -------------------------
 # READ (PRIVATE / USER-SCOPED)
@@ -161,6 +178,21 @@ def get_priority_counts(
 
     priority_counts = service.get_priority_counts_for_user(current_user.id)
     return [PriorityCountResponse(priority=priority, count=int(count)) for priority, count in priority_counts]
+
+@router.get("/category_priority_counts", response_model=list[CategoryPriorityCountResponse])
+def get_category_priority_counts(
+    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
+    session: Session = Depends(get_session),
+):
+    """
+    Get frequency distribution of user's feedback categories and priorities.
+    🔐 Authenticated users only. Returns only current user's category and priority distribution.
+    """
+    repo = FeedbackRepository(session)
+    service = FeedbackService(repo)
+
+    category_priority_counts = service.get_category_priority_counts_for_user(current_user.id)
+    return [CategoryPriorityCountResponse(category=category, priority=priority, count=int(count)) for (category, priority, count) in category_priority_counts]
 
 # -------------------------
 # READ (PUBLIC) - by ID

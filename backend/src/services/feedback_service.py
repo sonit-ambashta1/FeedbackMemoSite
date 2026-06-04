@@ -64,6 +64,10 @@ class FeedbackService:
         """Get all feedback for a specific priority level for a given user."""
         return self.feedback_repo.get_feedback_by_priority_for_user(user_id, priority)
 
+    def get_feedback_by_category_and_priority_for_user(self, user_id: int, category: str | None = None, priority: str | None = None) -> list[Feedback]:
+        """Get all feedback for a specific category and priority level for a given user."""
+        return self.feedback_repo.get_feedback_by_category_and_priority_for_user(user_id, category, priority)
+    
     def update_feedback(
         self,
         feedback_id: int,
