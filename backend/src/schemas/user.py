@@ -1,6 +1,6 @@
 """User request and response schemas for API contracts."""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # Request Schemas
@@ -31,6 +31,4 @@ class UserResponse(BaseModel):
 
     id: int
     username: str
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

@@ -55,7 +55,7 @@ def submit_feedback(
         priority=request.priority,
     )
 
-    return FeedbackResponse.from_orm(feedback)
+    return FeedbackResponse.model_validate(feedback)
 
 
 # -------------------------
@@ -80,7 +80,7 @@ def get_feedback_by_category(
     service = FeedbackService(repo)
 
     feedback_list = service.get_feedback_by_category_for_user(current_user.id, category)
-    return [FeedbackResponse.from_orm(f) for f in feedback_list]
+    return [FeedbackResponse.model_validate(f) for f in feedback_list]
 
 
 @router.get("/priority/{priority}", response_model=list[FeedbackResponse])
@@ -97,7 +97,7 @@ def get_feedback_by_priority(
     service = FeedbackService(repo)
 
     feedback_list = service.get_feedback_by_priority_for_user(current_user.id, priority)
-    return [FeedbackResponse.from_orm(f) for f in feedback_list]
+    return [FeedbackResponse.model_validate(f) for f in feedback_list]
 
 @router.get("/category/{category}/priority/{priority}", response_model=list[FeedbackResponse])
 def get_feedback_by_category_and_priority(
@@ -114,7 +114,7 @@ def get_feedback_by_category_and_priority(
     service = FeedbackService(repo)
 
     feedback_list = service.get_feedback_by_category_and_priority_for_user(current_user.id, category, priority)
-    return [FeedbackResponse.from_orm(f) for f in feedback_list]
+    return [FeedbackResponse.model_validate(f) for f in feedback_list]
 
 # -------------------------
 # READ (PRIVATE / USER-SCOPED)
@@ -134,7 +134,7 @@ def get_my_feedback(
     service = FeedbackService(repo)
 
     feedback_list = service.get_user_feedback(current_user.id)
-    return [FeedbackResponse.from_orm(f) for f in feedback_list]
+    return [FeedbackResponse.model_validate(f) for f in feedback_list]
 
 
 # Alias endpoint for compatibility
@@ -223,7 +223,7 @@ def get_feedback_by_id(
             detail="Not authorized to access this feedback",
         )
 
-    return FeedbackResponse.from_orm(feedback)
+    return FeedbackResponse.model_validate(feedback)
 
 
 # -------------------------
@@ -260,7 +260,7 @@ def update_feedback(
             detail="Feedback not found or not authorized",
         )
 
-    return FeedbackResponse.from_orm(feedback)
+    return FeedbackResponse.model_validate(feedback)
 
 
 # -------------------------
