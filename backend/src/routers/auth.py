@@ -50,7 +50,7 @@ def register(
             password=request.password,
         )
 
-        return UserResponse.from_orm(user)
+        return UserResponse.model_validate(user)
 
     except ValueError as e:
         raise HTTPException(
@@ -110,4 +110,4 @@ def get_current_user_profile(
     Get the current authenticated user's profile.
     Works with both HTTP-only cookie and Authorization Bearer header.
     """
-    return UserResponse.from_orm(current_user)
+    return UserResponse.model_validate(current_user)
