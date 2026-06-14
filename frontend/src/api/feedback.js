@@ -9,34 +9,9 @@
  * Uses HTTP-only cookie for authentication.
  */
 
-const API_BASE = `${import.meta.env.VITE_API_URL || "http://localhost:8000"}/feedback`;
+import { buildUrl, apiFetch, API_BASE } from "./client";
 
-/**
- * Error handler: Extract meaningful messages
- * Handles 204 No Content for DELETE requests
- */
-async function handleResponse(response) {
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const errorMessage = errorData.detail || `HTTP ${response.status}: ${response.statusText}`;
-    throw new Error(errorMessage);
-  }
-
-  // Handle 204 No Content
-  if (response.status === 204) return null;
-
-  return await response.json();
-}
-
-/**
- * Common fetch options for authenticated requests
- */
-const authenticatedOptions = {
-  credentials: "include", // send HTTP-only cookies
-  headers: {
-    "Content-Type": "application/json",
-  },
-};
+const FEEDBACK_BASE = `${API_BASE}/feedback`;
 
 // =====================================================================
 // FEEDBACK OPERATIONS
@@ -46,11 +21,9 @@ const authenticatedOptions = {
  * Get all feedback for current user
  */
 async function getMyFeedback() {
-  const response = await fetch(`${API_BASE}/me`, {
+  return apiFetch(`${FEEDBACK_BASE}/me`, {
     method: "GET",
-    ...authenticatedOptions,
   });
-  return handleResponse(response);
 }
 
 /**
@@ -58,12 +31,10 @@ async function getMyFeedback() {
  * @param {Object} feedback { content, category, priority }
  */
 async function submitFeedback(feedback) {
-  const response = await fetch(`${API_BASE}/submit`, {  // Fixed URL
+  return apiFetch(`${FEEDBACK_BASE}/submit`, {
     method: "POST",
-    ...authenticatedOptions,
     body: JSON.stringify(feedback),
   });
-  return handleResponse(response);
 }
 
 /**
@@ -72,12 +43,10 @@ async function submitFeedback(feedback) {
  * @param {Object} feedback { content?, category?, priority? }
  */
 async function updateFeedback(feedbackId, feedback) {
-  const response = await fetch(`${API_BASE}/${feedbackId}`, {
+  return apiFetch(`${FEEDBACK_BASE}/${feedbackId}`, {
     method: "PUT",
-    ...authenticatedOptions,
     body: JSON.stringify(feedback),
   });
-  return handleResponse(response);
 }
 
 /**
@@ -85,82 +54,60 @@ async function updateFeedback(feedbackId, feedback) {
  * @param {number|string} feedbackId 
  */
 async function deleteFeedback(feedbackId) {
-  const response = await fetch(`${API_BASE}/${feedbackId}`, {
+  return apiFetch(`${FEEDBACK_BASE}/${feedbackId}`, {
     method: "DELETE",
-    ...authenticatedOptions,
   });
-  return handleResponse(response); // now handles 204 correctly
 }
 
+/**
+ * Get feedback for the current user filtered by optional query params
+ * @param {Object} filters { category, priority }
+ */
+async function getFeedback(filters = {}) {
+  const url = buildUrl(`${FEEDBACK_BASE}`, filters);
+  return apiFetch(url, { method: "GET" });
+}
 
 /**
- * Get feedback for the current user filtered by category
- * @param {string} category
+ * Get feedback for the current user filtered by category.
  */
 async function getFeedbackByCategory(category) {
-  const response = await fetch(`${API_BASE}/category/${encodeURIComponent(category)}`, {
-    method: "GET",
-    ...authenticatedOptions,
-  });
-  return handleResponse(response);
+  return getFeedback({ category });
 }
 
 /**
- * Get feedback for the current user filtered by priority
- * @param {string} priority
+ * Get feedback for the current user filtered by priority.
  */
 async function getFeedbackByPriority(priority) {
-  const response = await fetch(`${API_BASE}/priority/${encodeURIComponent(priority)}`, {
-    method: "GET",
-    ...authenticatedOptions,
-  });
-  return handleResponse(response);
+  return getFeedback({ priority });
 }
 
 /**
- * Get feedback for the current user filtered by both category and priority
- * @param {string} category 
- * @param {string} priority
+ * Get feedback for the current user filtered by both category and priority.
  */
 async function getFeedbackByCategoryAndPriority(category, priority) {
-  const response = await fetch(`${API_BASE}/filter?category=${encodeURIComponent(category)}&priority=${encodeURIComponent(priority)}`, {
-    method: "GET",
-    ...authenticatedOptions,
-  });
-  return handleResponse(response);
+  return getFeedback({ category, priority });
 }
 
 /**
  * Get category counts for the current user
  */
 async function getCategoryCounts() {
-  const response = await fetch(`${API_BASE}/category_counts`, {
-    method: "GET",
-    ...authenticatedOptions,
-  });
-  return handleResponse(response);
+  return apiFetch(`${FEEDBACK_BASE}/category_counts`, { method: "GET" });
 }
 
 /**
  * Get priority counts for the current user
  */
 async function getPriorityCounts() {
-  const response = await fetch(`${API_BASE}/priority_counts`, {
-    method: "GET",
-    ...authenticatedOptions,
-  });
-  return handleResponse(response);
+  return apiFetch(`${FEEDBACK_BASE}/priority_counts`, { method: "GET" });
 }
 
 /**
  * Get category and priority counts for the current user
  */
 async function getCategoryAndPriorityCounts() {
-  const response = await fetch(`${API_BASE}/category_priority_counts`, {
-    method: "GET",
-    ...authenticatedOptions,
-  });
-  return handleResponse(response);
+  return apiFetch(`${FEEDBACK_BASE}/category_priority_counts`, { method: "GET" });
 }
 
 /**
@@ -168,11 +115,7 @@ async function getCategoryAndPriorityCounts() {
  * @param {number|string} feedbackId
  */
 async function getFeedbackById(feedbackId) {
-  const response = await fetch(`${API_BASE}/${feedbackId}`, {
-    method: "GET",
-    ...authenticatedOptions,
-  });
-  return handleResponse(response);
+  return apiFetch(`${FEEDBACK_BASE}/${feedbackId}`, { method: "GET" });
 }
 
 // =====================================================================
@@ -184,8 +127,10 @@ const feedbackAPI = {
   updateFeedback,
   deleteFeedback,
   getFeedbackById,
+  getFeedback,
   getFeedbackByCategory,
   getFeedbackByPriority,
+  getFeedbackByCategoryAndPriority,
   getCategoryCounts,
   getPriorityCounts,
   getCategoryAndPriorityCounts,

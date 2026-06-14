@@ -1,37 +1,42 @@
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
 import feedbackAPI from "../api/feedback"
+import useAsync from "../hooks/useAsync"
 
 const Summary = () => {
-  const { user, loading: authLoading } = useAuth()
-  const [categorySummary, setCategorySummary] = useState([])
-  const [prioritySummary, setPrioritySummary] = useState([])
-  const [categoryPrioritySummary, setCategoryPrioritySummary] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const { user, initializing: authLoading } = useAuth()
+  const {
+    data: summaryData,
+    loading,
+    error,
+    execute,
+    setError,
+  } = useAsync({
+    categorySummary: [],
+    prioritySummary: [],
+    categoryPrioritySummary: [],
+  })
+  const { categorySummary, prioritySummary, categoryPrioritySummary } = summaryData
 
   useEffect(() => {
     if (!user) return
 
-    const loadSummary = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const categoryData = await feedbackAPI.getCategoryCounts()
-        const priorityData = await feedbackAPI.getPriorityCounts()
-        const categoryPriorityData = await feedbackAPI.getCategoryAndPriorityCounts()
-        setCategorySummary(categoryData)
-        setPrioritySummary(priorityData)
-        setCategoryPrioritySummary(categoryPriorityData)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
+    execute(async () => {
+      const [categoryData, priorityData, categoryPriorityData] = await Promise.all([
+        feedbackAPI.getCategoryCounts(),
+        feedbackAPI.getPriorityCounts(),
+        feedbackAPI.getCategoryAndPriorityCounts(),
+      ])
 
-    loadSummary()
-  }, [user])
+      return {
+        categorySummary: categoryData,
+        prioritySummary: priorityData,
+        categoryPrioritySummary: categoryPriorityData,
+      }
+    }).catch((err) => {
+      setError(err.message)
+    })
+  }, [user, execute, setError])
 
   if (authLoading) return <div className="min-h-screen bg-slate-50 py-12 px-4">Loading authentication...</div>
   if (!user) return <div className="min-h-screen bg-slate-50 py-12 px-4">Please log in to view the summary.</div>

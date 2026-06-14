@@ -64,12 +64,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize database tables on startup (safe no-op if already present)
-create_db_and_tables()
-
 # Register routers for modular endpoint organization
 app.include_router(auth.router)
 app.include_router(feedback.router)
+
+
+@app.on_event("startup")
+def on_startup() -> None:
+    """Create database tables and ensure DB availability at startup."""
+    create_db_and_tables()
 
 
 @app.get("/")

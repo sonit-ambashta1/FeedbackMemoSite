@@ -74,19 +74,7 @@ def create_jwt_token(user: User) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-# -------------------------
-# AUTH DEPENDENCIES
-# -------------------------
-
-
-def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    session: Session = Depends(get_session),
-) -> User:
-    """
-    Dependency to get the currently authenticated user from an
-    Authorization Bearer token.
-    """
+def _decode_token(token: str) -> int:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -98,62 +86,26 @@ def get_current_user(
         user_id: Optional[str] = payload.get("sub")
         if not user_id:
             raise credentials_exception
+        return int(user_id)
     except ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired")
     except JWTError:
         raise credentials_exception
 
-    repo = UserRepository(session)
-    user = repo.get_by_id(int(user_id))
-    if not user:
-        raise credentials_exception
-    return user
 
-
-def get_current_user_from_cookie(
-    request: Request,
-    session: Session = Depends(get_session),
-) -> User:
-    """
-    Dependency to get the currently authenticated user from an HTTP-only cookie.
-    Cookie name must match frontend (e.g., 'access_token').
-    """
+def _get_token_from_request(request: Request) -> str:
     token = request.cookies.get("access_token")
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication cookie not found",
-        )
+    if token:
+        return token
 
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: Optional[str] = payload.get("sub")
-        if not user_id:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token payload",
-            )
-    except ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired"
-        )
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        return auth_header[len("Bearer ") :]
 
-    repo = UserRepository(session)
-    user = repo.get_by_id(int(user_id))
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-        )
-
-    return user
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated",
+    )
 
 
 def get_current_user_flexible(
@@ -162,42 +114,13 @@ def get_current_user_flexible(
 ) -> User:
     """
     Dependency to get the currently authenticated user.
-    Works with:
-      1. HTTP-only cookie: 'access_token'
-      2. Authorization Bearer header
+    Supports both HTTP-only cookies and Bearer tokens.
     """
-    token = request.cookies.get("access_token")
-    # If cookie not present, check Authorization header
-    if not token:
-        auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header[len("Bearer ") :]
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Not authenticated",
-            )
+    token = _get_token_from_request(request)
+    user_id = _decode_token(token)
 
-    # Decode JWT
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: Optional[str] = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token payload",
-            )
-    except ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Session expired")
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate token",
-        )
-
-    # Fetch user from DB
     repo = UserRepository(session)
-    user = repo.get_by_id(int(user_id))
+    user = repo.get_by_id(user_id)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

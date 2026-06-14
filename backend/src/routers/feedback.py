@@ -66,54 +66,29 @@ def submit_feedback(
 # accidental matching of static paths like '/me' to the dynamic parameter.
 
 
-@router.get("/category/{category}", response_model=list[FeedbackResponse])
-def get_feedback_by_category(
-    category: str,
-    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
+@router.get("", response_model=list[FeedbackResponse])
+def list_feedback(
+    category: str | None = None,
+    priority: str | None = None,
+    current_user: User = Depends(get_current_user_flexible),
     session: Session = Depends(get_session),
 ):
     """
-    Get user's feedback filtered by category.
-    🔐 Authenticated users only.
+    List feedback for the authenticated user.
+
+    Supports optional filters via query parameters:
+      - ?category=...
+      - ?priority=...
+      - ?category=...&priority=...
     """
     repo = FeedbackRepository(session)
     service = FeedbackService(repo)
 
-    feedback_list = service.get_feedback_by_category_for_user(current_user.id, category)
-    return [FeedbackResponse.model_validate(f) for f in feedback_list]
-
-
-@router.get("/priority/{priority}", response_model=list[FeedbackResponse])
-def get_feedback_by_priority(
-    priority: str,
-    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
-    session: Session = Depends(get_session),
-):
-    """
-    Get user's feedback filtered by priority.
-    🔐 Authenticated users only.
-    """
-    repo = FeedbackRepository(session)
-    service = FeedbackService(repo)
-
-    feedback_list = service.get_feedback_by_priority_for_user(current_user.id, priority)
-    return [FeedbackResponse.model_validate(f) for f in feedback_list]
-
-@router.get("/category/{category}/priority/{priority}", response_model=list[FeedbackResponse])
-def get_feedback_by_category_and_priority(
-    category: str,
-    priority: str,
-    current_user: User = Depends(get_current_user_flexible),  # 🔐 JWT required
-    session: Session = Depends(get_session),
-):
-    """
-    Get user's feedback filtered by both category and priority.
-    🔐 Authenticated users only.
-    """
-    repo = FeedbackRepository(session)
-    service = FeedbackService(repo)
-
-    feedback_list = service.get_feedback_by_category_and_priority_for_user(current_user.id, category, priority)
+    feedback_list = service.get_feedback_by_category_and_priority_for_user(
+        current_user.id,
+        category=category,
+        priority=priority,
+    )
     return [FeedbackResponse.model_validate(f) for f in feedback_list]
 
 # -------------------------

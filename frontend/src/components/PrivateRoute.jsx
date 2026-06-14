@@ -3,10 +3,9 @@ import { Navigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
 const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuth()
+  const { user, initializing } = useAuth()
 
-  if (loading) {
-    // While checking auth status, show nothing or a loader
+  if (initializing) {
     return <div>Loading...</div>
   }
 

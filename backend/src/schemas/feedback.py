@@ -10,7 +10,8 @@ class FeedbackSubmitRequest(BaseModel):
     """Request body for submitting feedback."""
 
     content: str = Field(..., min_length=1)
-    category: str = Field(..., min_length=1)
+    # Make category optional to match frontend behavior (optional field)
+    category: Optional[str] = Field(None, min_length=1)
     priority: str = Field(..., min_length=1)
 
 
