@@ -11,10 +11,14 @@ load_dotenv()
 # In production, require DATABASE_URL to be configured.
 ENV = os.getenv("ENV", "dev")
 if ENV == "dev":
-    if os.getenv("POSTGRES_USER") and os.getenv("POSTGRES_PASSWORD"):
-        DATABASE_URL = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/feedbackdb"
+    if os.getenv("DATABASE_URL"):
+        DATABASE_URL = os.getenv("DATABASE_URL")
+    elif os.getenv("POSTGRES_USER") and os.getenv("POSTGRES_PASSWORD"):
+        DATABASE_URL = (
+            f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/feedbackdb"
+        )
     else:
-        raise ValueError("POSTGRES_USER and POSTGRES_PASSWORD must be set in dev environment.")
+        DATABASE_URL = "sqlite:///./dev.db"
 else:
     DATABASE_URL = os.getenv("DATABASE_URL")  # Must be set via environment variable in production
     if not DATABASE_URL:

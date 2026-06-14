@@ -9,43 +9,28 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import feedbackAPI from "../api/feedback";
+import useAsync from "../hooks/useAsync";
 import FeedbackItem from "../components/FeedbackItem";
 
 // Priority sorting order
 const PRIORITY_ORDER = { high: 3, medium: 2, low: 1 };
 
 export default function Dashboard() {
-  const { user, loading: authLoading } = useAuth();
-  const [feedbacks, setFeedbacks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { user, initializing: authLoading } = useAuth();
+  const { data: feedbacks, setData: setFeedbacks, loading, error, execute, setError } = useAsync([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
   const [newContent, setNewContent] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [newPriority, setNewPriority] = useState("medium");
-
+  
   // Load user's feedback
   useEffect(() => {
     if (!user) return;
 
-    async function loadFeedback() {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await feedbackAPI.getMyFeedback();
-        setFeedbacks(data);
-      } catch (err) {
-        console.error("Failed to load feedback:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadFeedback();
-  }, [user]);
+    execute(async () => feedbackAPI.getMyFeedback());
+  }, [user, execute]);
 
   // Add feedback
   async function handleAddFeedback(e) {
@@ -54,11 +39,14 @@ export default function Dashboard() {
 
     setIsSubmitting(true);
     try {
-      const newFeedback = await feedbackAPI.submitFeedback({
+      // Build payload and omit `category` if it's empty to avoid sending `null`.
+      const payload = {
         content: newContent,
-        category: newCategory || null,
         priority: newPriority,
-      });
+      };
+      if (newCategory && newCategory.trim() !== "") payload.category = newCategory;
+
+      const newFeedback = await feedbackAPI.submitFeedback(payload);
       // Prepend new feedback for live update
       setFeedbacks((prev) => [newFeedback, ...prev]);
       setNewContent("");

@@ -1,57 +1,44 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import userAPI from "../api/users"; // centralized auth API
+import userAPI from "../api/users";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [initializing, setInitializing] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch current user on app load
   useEffect(() => {
+    let mounted = true;
+
     async function fetchUser() {
       try {
         const currentUser = await userAPI.getCurrentUser();
-        setUser(currentUser);
-        setError(null);
+        if (mounted) {
+          setUser(currentUser);
+          setError(null);
+        }
       } catch (err) {
-        console.debug("User not authenticated:", err.message);
-        setUser(null);
-        setError(null);
+        if (mounted) {
+          console.debug("User not authenticated:", err.message);
+          setUser(null);
+          setError(null);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) setInitializing(false);
       }
     }
 
     fetchUser();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  // Login function
   const login = async (username, password) => {
-    setLoading(true);
+    setAuthLoading(true);
     try {
-      await userAPI.login(username, password);
-      const currentUser = await userAPI.getCurrentUser(); // fetch user after login
-      setUser(currentUser);
-      setError(null);
-    } catch (err) {
-      setUser(null);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Register function - minimal flow: register then log the user in
-  const register = async (username, password) => {
-    setLoading(true);
-    try {
-      // create user
-      await userAPI.register(username, password);
-
-      // login to set HTTP-only cookie and load user
       await userAPI.login(username, password);
       const currentUser = await userAPI.getCurrentUser();
       setUser(currentUser);
@@ -61,13 +48,29 @@ export function AuthProvider({ children }) {
       setError(err.message);
       throw err;
     } finally {
-      setLoading(false);
+      setAuthLoading(false);
     }
   };
 
-  // Logout function
+  const register = async (username, password) => {
+    setAuthLoading(true);
+    try {
+      await userAPI.register(username, password);
+      await userAPI.login(username, password);
+      const currentUser = await userAPI.getCurrentUser();
+      setUser(currentUser);
+      setError(null);
+    } catch (err) {
+      setUser(null);
+      setError(err.message);
+      throw err;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const logout = async () => {
-    setLoading(true);
+    setAuthLoading(true);
     try {
       await userAPI.logout();
       setUser(null);
@@ -76,18 +79,28 @@ export function AuthProvider({ children }) {
       setError(err.message);
       throw err;
     } finally {
-      setLoading(false);
+      setAuthLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, error, login, logout, register }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        initializing,
+        authLoading,
+        error,
+        login,
+        logout,
+        register,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Hook to use auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within AuthProvider");
