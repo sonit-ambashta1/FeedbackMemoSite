@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import feedbackAPI from "../api/feedback";
 import useAsync from "../hooks/useAsync";
 import FeedbackItem from "../components/FeedbackItem";
+import FeedbackFilter from "../components/FeedbackFilter";
 
 // Priority sorting order
 const PRIORITY_ORDER = { high: 3, medium: 2, low: 1 };
@@ -24,13 +25,16 @@ export default function Dashboard() {
   const [newContent, setNewContent] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [newPriority, setNewPriority] = useState("medium");
+
+  // Filtering Logic
+  const [filters, setFilters] = useState({category: "", priority: ""})
   
   // Load user's feedback
   useEffect(() => {
     if (!user) return;
 
-    execute(async () => feedbackAPI.getMyFeedback());
-  }, [user, execute]);
+    execute(() => feedbackAPI.getFeedback(filters));
+  }, [user, filters, execute]);
 
   // Add feedback
   async function handleAddFeedback(e) {
@@ -88,6 +92,10 @@ export default function Dashboard() {
   const sortedFeedbacks = [...feedbacks].sort(
     (a, b) => (PRIORITY_ORDER[b.priority] ?? 0) - (PRIORITY_ORDER[a.priority] ?? 0)
   );
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
 
   // Loading & auth checks
   if (authLoading) return <div className="min-h-screen bg-slate-50 py-12 px-4">Loading authentication...</div>;
@@ -152,6 +160,14 @@ export default function Dashboard() {
               {isSubmitting ? "Adding..." : "Add Feedback"}
             </button>
           </form>
+        </div>
+
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+          <FeedbackFilter
+            filters={filters}
+            onChange={handleFilterChange}
+            onReset={() => setFilters({ category: "", priority: "" })}
+          />
         </div>
 
         {sortedFeedbacks.length === 0 ? (
