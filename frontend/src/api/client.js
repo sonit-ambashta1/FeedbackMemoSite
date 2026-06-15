@@ -22,7 +22,10 @@ async function handleResponse(response) {
 }
 
 function buildUrl(path, query = {}) {
-  const url = new URL(`${API_BASE}${path}`);
+  const url = path.startsWith("http://") || path.startsWith("https://")
+    ? new URL(path)
+    : new URL(path, API_BASE);
+
   Object.entries(query).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
       url.searchParams.set(key, value);
