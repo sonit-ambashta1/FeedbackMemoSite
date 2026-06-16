@@ -1,6 +1,7 @@
 const FeedbackFilter = ({ filters, onChange, onReset }) => {
   return (
     <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6">
+      <h1 className="text-3xl font-semibold text-slate-900 mb-6">Filter By:</h1>
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block">
           <span className="text-sm font-medium text-slate-700">Category</span>

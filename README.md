@@ -21,11 +21,10 @@ Ideal for personal growth, team dynamics, and organizational structure.
 <ul>
 <li>📝 Add, edit, and remove feedback entries</li>
 <li>🎨 Intuitive UI with icons and buttons for fast interaction</li>
-<li>📂 Create, update, and delete tabs and subtabs (planned)</li> 
-<li>🧠 AI Priority Mapper (planned)</li>
-<li>🤝 Real-time collaboration (planned)</li>
-<li>🧠 AI-assisted feedback refinement (planned)</li>
-<li>🔔 Notifications for reminders and updates (planned)</li>
+<li>🔎 Filter feedback by category and priority</li>
+<li>📊 Aggregated insights (counts by category and priority)</li>
+<li>🧠 AI-powered summarization of feedback (themes, sentiment, actions)</li>
+<li>📈 Simple dashboard visualization for feedback distribution and trends</li>
 </ul>
 
 ---
