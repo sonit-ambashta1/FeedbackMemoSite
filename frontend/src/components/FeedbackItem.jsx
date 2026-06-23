@@ -117,7 +117,6 @@ export default function FeedbackItem({ feedback, onDelete, onUpdate }) {
       aria-label="Edit feedback item"
     >
       <div className="space-y-5">
-        <h1 className="text-3xl font-semibold text-slate-900 mb-6">Filter By:</h1>
         <div>
           <label htmlFor={`content-${id}`} className="block text-sm font-medium text-slate-700 mb-2">
             Content
