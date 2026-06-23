@@ -9,6 +9,27 @@ import PrivateRoute from "./components/PrivateRoute"
 import Summary from "./pages/Summary"
 import Home from "./pages/Home"
 
+import {
+  Chart as ChartJS,
+  Colors,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js"
+
+ChartJS.register(
+  CategoryScale,
+  Colors,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+)
+
 function App() {
   return (
     <AuthProvider>

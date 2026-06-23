@@ -72,6 +72,11 @@ class FeedbackRepository:
         if priority is not None:
             statement = statement.where(Feedback.priority == priority)
         return self.session.exec(statement).all()
+    
+    def get_feedback_categories_for_user(self, user_id: int) -> list[str]:
+        """Get specific categories for all feedback inserted by the user."""
+        statement = select(Feedback.category).distinct().where(Feedback.user_id == user_id)
+        return self.session.exec(statement).all()
 
     def get_feedback_by_id(self, feedback_id: int) -> Feedback | None:
         """Get feedback by ID. Returns Feedback or None if not found."""
@@ -90,6 +95,15 @@ class FeedbackRepository:
         )
         return self.session.exec(statement).all()
     
+    def get_feedback_count_by_user(self, user_id: int):
+        """
+        Returns an integer showing how many feedback entries exist
+        """
+        statement = (
+            select(func.count(Feedback)).where(Feedback.user_id == user_id)
+        )
+        return self.session.exec(statement).one()
+        
     def get_priority_counts(self, user_id: int) -> list[tuple[str, int]]:
         """Return tuples of (priority, count) for a given user.
 
@@ -150,3 +164,5 @@ class FeedbackRepository:
             self.session.commit()
             return True
         return False
+
+# DEBUG
